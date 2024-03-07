@@ -29,22 +29,33 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 
-
-app.route('/').get((req, res) => {
-res.render('index',{title: 'Hello', message: 'Please log in'})   
-});
-
-
-// serial & deserialize users
-passport.serializeUser((user,done)=>{
-done(null,user._id);
+myDB(async client =>{
+  const myDataBase = await client.db('database').collection('users');
+  app.route('/').get((req, res) => {
+    res.render('index',
+    {title: 'Connected to database',
+     message: 'Please log in'
+      })   
+    });
+    
+    
+    // serial & deserialize users
+    passport.serializeUser((user,done)=>{
+    done(null,user._id);
+    })
+    passport.deserializeUser((id,done)=>{
+    done(null,null)
+    // myDatabase.findOne({_id: new ObjectID(id)},(err,done)=>{
+    // done(null,null)
+    // })
+    })
 })
-passport.deserializeUser((id,done)=>{
-done(null,null)
-// myDatabase.findOne({_id: new ObjectID(id)},(err,done)=>{
-// done(null,null)
-// })
+.catch(err=>{
+  app.route('/').get((req,res)=>{
+    res.render('index',{title:e,message:'Unable to connect to database'})
+  })
 })
+
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
