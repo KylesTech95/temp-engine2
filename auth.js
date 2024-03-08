@@ -2,7 +2,7 @@ const passport = require('passport');
 const { ObjectID } = require('mongodb');
 const LocalStrategy = require('passport-local');
 const GithubStrategy = require('passport-github').Strategy;
-module.exports = (app,myDatabase) => {
+module.exports = (app,myDataBase) => {
         // use LocalStrategy
         passport.use(new LocalStrategy((username,password,done)=>{
             myDataBase.findOne({username:username},(err,user)=>{
@@ -45,7 +45,7 @@ module.exports = (app,myDatabase) => {
                 provider: profile.provider||''
               },
               $set: {
-                last_login:newDate()
+                last_login:new Date()
               },
               $inc:{
                 login_count:1
