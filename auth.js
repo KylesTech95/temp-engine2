@@ -33,6 +33,31 @@ module.exports = (app,myDatabase) => {
         },
         function(accessToken, refreshToken, profile, cb) {
             console.log(profile);
+            myDataBase.findOneAndUpdate(
+              {id:profile.id},
+              {
+              $setOnInsert:{
+                username:profile.username,
+                name:profile.displayName||`John Doe`,
+                photo: profile.photos[0].value||``,
+                email:Array.isArray(profile.email)?profile.emails[0].value:'no Public email',
+                created_on: new Date(),
+                provider: profile.provider||''
+              },
+              $set: {
+                last_login:newDate()
+              },
+              $inc:{
+                login_count:1
+              }
+            },
+            {upsert:true,new:true},
+            (err,doc)=>{
+              return cb(null,doc.value)
+            }
+            )
+
+
             //Database logic here with callback containing your user object
           }))
           // serial & deserialize users

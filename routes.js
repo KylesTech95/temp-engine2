@@ -17,7 +17,9 @@ module.exports = (app,myDataBase) => {
       })   
     });
     app.route(`/auth/github`).get(passport.authenticate('github'))
+    // after authentication is decided, we need a call back to route to either '/' or '/profile'
     app.route('/auth/github/callback').get(passport.authenticate('github',{failureRedirect:true}),(req,res)=>{
+     
         res.redirect('/profile')
     })
 
