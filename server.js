@@ -8,8 +8,9 @@ const passport = require('passport');
 const LocalStrategy = require('passport-local');
 const routes = require('./routes.js');
 const auth = require('./auth.js');
-
 const app = express();
+const http = require('http').createServer(app);
+const io = require('socket.io')(http)
 
 // express session
 app.use(session({
@@ -36,6 +37,19 @@ myDB(async client =>{
 
   routes(app,myDataBase)
   auth(app,myDataBase)
+
+  let currentUsers = 0;
+
+  io.on('connection', socket=>{
+    currentUsers++
+    io.emit('user count',currentUsers);
+    console.log('A user has connected')
+    socket.on('disconnect',()=>{
+      currentUsers++
+      io.emit('user count',currentUsers)
+      console.log('User disconnected')
+    })
+  })
   
 })
 .catch(err=>{
@@ -46,6 +60,6 @@ myDB(async client =>{
 
 // app.listen
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+http.listen(PORT, () => {
   console.log('Listening on port ' + PORT);
 });

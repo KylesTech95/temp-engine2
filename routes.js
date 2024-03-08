@@ -19,10 +19,9 @@ module.exports = (app,myDataBase) => {
     app.route(`/auth/github`).get(passport.authenticate('github'))
     // after authentication is decided, we need a call back to route to either '/' or '/profile'
     app.route('/auth/github/callback').get(passport.authenticate('github',{failureRedirect:'/'}),(req,res)=>{
-     
-        res.redirect('/profile')
+      req.session.user_id = req.user.id
+        res.redirect('/chat')
     })
-
     // POST to /login
     app.route('/login').post(passport.authenticate('local',{failureRedirect:'/'}),function(req,res){
       res.redirect('/profile');
@@ -58,6 +57,10 @@ module.exports = (app,myDataBase) => {
     app.route('/logout').get((req,res)=>{
       req.logout();
       res.redirect('/')
+    })
+    app.route('/chat').get(ensureAuthenticated,function(req,res){
+      res.render('chat',
+      {user:req.user})
     })
     // 404 Not Found
     app.use((req,res,next)=>{
